@@ -2,7 +2,6 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import axios from 'axios';
 import imageType from 'image-type';
-import { filterImageFromURL, deleteLocalFiles } from './util/util.js';
 
 // Init the Express application
 const app = express();
@@ -13,18 +12,14 @@ const port = process.env.PORT || 8082;
 // Use the body parser middleware for post requests
 app.use(bodyParser.json());
 
-// @TODO1 IMPLEMENT A RESTFUL ENDPOINT
-// GET /filteredimage?image_url={{URL}}
-// endpoint to filter an image from a public url.
-// IT SHOULD
-//    1. validate the image_url query
-//    2. call filterImageFromURL(image_url) to filter the image
-//    3. send the resulting file in the response
-//    4. deletes any files on the server on finish of the response
-// QUERY PARAMETERS
-//    image_url: URL of a publicly accessible image
-// RETURNS
-//   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
+/**
+ * GET /filteredimage
+ * Filters an image from a public URL
+ * Query Params:
+ * - image_url: URL of the image to filter
+ * Returns:
+ * - Filtered image in the response
+ */
 app.get('/filteredimage', async (req, res) => {
   const { image_url } = req.query;
 
@@ -42,7 +37,7 @@ app.get('/filteredimage', async (req, res) => {
     res.status(500).send(`An error occurred: ${error.message}`);
   }
 });
-//! END @TODO1
+
 
 // Root Endpoint
 // Displays a simple message to the user
