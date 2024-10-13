@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import axios from 'axios';
-import imageType from 'image-type';
+import { filterImageFromURL, deleteLocalFiles } from './util/util.js'; // Import the functions
 
 // Init the Express application
 const app = express();
@@ -28,16 +27,22 @@ app.get('/filteredimage', async (req, res) => {
   }
 
   try {
-    const imageResponse = await axios.get(image_url, { responseType: 'arraybuffer' });
-    const imageBuffer = Buffer.from(imageResponse.data);
-    const { ext, mime } = imageType(imageBuffer) || { ext: 'jpg', mime: 'image/jpeg' };
-    res.set('Content-Type', mime);
-    res.status(200).send(imageBuffer);
+    // Call filterImageFromURL to process the image from the URL
+    const filteredImagePath = await filterImageFromURL(image_url);
+
+    // Send the filtered image in the response
+    res.sendFile(filteredImagePath, async (err) => {
+      if (err) {
+        return res.status(500).send(`An error occurred while sending the image: ${err.message}`);
+      }
+
+      // Delete the local file after sending it
+      await deleteLocalFiles([filteredImagePath]);
+    });
   } catch (error) {
     res.status(500).send(`An error occurred: ${error.message}`);
   }
 });
-
 
 // Root Endpoint
 // Displays a simple message to the user
